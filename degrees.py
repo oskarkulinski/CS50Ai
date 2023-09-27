@@ -91,7 +91,7 @@ def shortest_path(source, target):
 
     If no possible path, returns None.
     """
-    
+
     current = source
     frontier = StackFrontier()
     frontier.add(Node(state=current, action=None, parent=None))
@@ -99,25 +99,21 @@ def shortest_path(source, target):
     while True:
         if frontier.empty():
             return None
-        
-        current = frontier.remove()
-        explored.add(current)
 
-        if current == target:
-            movies = []
-            actors = []
+        current = frontier.remove()
+        explored.add(current.state)
+
+        if current.state == target:
+            path = []
             while current.parent is not None:
-                    movies.append(node.action)
-                    actors.append(node.state)
-                    node = node.parent
-            
-            movies.reverse()
-            actors.reverse()
-            return (movies, actors)
-        for movie, actor in neighbors_for_person(current):
+                path.append((current.action, current.state))
+                current = current.parent
+
+            path.reverse()
+            return path
+        for movie, actor in neighbors_for_person(current.state):
             if not frontier.contains_state(actor) and actor not in explored:
                 frontier.add(Node(state=actor, action=movie, parent=current))
-
 
 
 def person_id_for_name(name):
