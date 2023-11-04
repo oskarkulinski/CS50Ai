@@ -208,7 +208,7 @@ class MinesweeperAI():
                 elif self.knowledge[j].cells.issubset(self.knowledge[i].cells):
                     toAdd.append(Sentence(self.knowledge[i].cells - self.knowledge[j].cells, self.knowledge[i].count - self.knowledge[j].count))
         self.knowledge += toAdd
-        i = 0
+        
         for sentence in self.knowledge:
             ks.update(sentence.known_safes())
             km.update(sentence.known_mines())
