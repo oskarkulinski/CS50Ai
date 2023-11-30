@@ -60,11 +60,12 @@ def load_data(filename):
     """
     with open(sys.argv[1]) as shop:
         reader = csv.DictReader(shop)
-        evidence = list(dict())
+        evidence = list(list())
         labels = list()
         for row in reader:
-            evidence.append(dictify(row))
-            list.append(row['Revenue'])
+            evidence.append(make_list(row))
+            labels.append(1 if row['Revenue'] == 'TRUE' else 0)
+    return evidence, labels
 
 
 def train_model(evidence, labels):
@@ -72,7 +73,9 @@ def train_model(evidence, labels):
     Given a list of evidence lists and a list of labels, return a
     fitted k-nearest neighbor model (k=1) trained on the data.
     """
-    raise NotImplementedError
+    model = KNeighborsClassifier(n_neighbors=1)
+    model.fit(evidence, labels)
+    return model
 
 
 def evaluate(labels, predictions):
@@ -90,30 +93,71 @@ def evaluate(labels, predictions):
     representing the "true negative rate": the proportion of
     actual negative labels that were accurately identified.
     """
-    raise NotImplementedError
+    total_true = 0
+    total_false = 0
+    predicted_true = 0
+    predicted_false = 0
+    for i in range(len(labels)):
+        if labels[i] == 1:
+            total_true += 1
+            if predictions[i] == 1:
+                predicted_true += 1
+        else:
+            total_false += 1
+            if predictions[i] == 0:
+                predicted_false += 1
+    return predicted_true / total_true, predicted_false / total_false
 
 
-def dictify(row):
-    transformed = dict()
+def make_list(row: dict):
+    transformed = list()
     k = list(row.keys())
-    transformed.update({k[0]: int(row[k[0]])})
-    transformed.update({k[1]: float(row[k[1]])})
-    transformed.update({k[2]: int(row[k[2]])})
-    transformed.update({k[3]: float(row[k[3]])})
-    transformed.update({k[4]: int(row[k[4]])})
-    transformed.update({k[5]: float(row[k[5]])})  # productRelated_Duration
-    transformed.update({k[6]: float(row[k[6]])})  # bounce rates
-    transformed.update({k[7]: float(row[k[7]])})
-    transformed.update({k[8]: float(row[k[8]])})
-    transformed.update({k[9]: float(row[k[9]])})  # SpecialDay
-    transformed.update({k[10]: int(row[k[10]])})  # Month
-    transformed.update({k[11]: int(row[k[11]])})
-    transformed.update({k[12]: int(row[k[12]])})
-    transformed.update({k[13]: int(row[k[13]])})
-    transformed.update({k[14]: int(row[k[14]])})  # Traffic Type
-    transformed.update({k[15]: 1 if row[k[15]] == 'Returning_Visitor' else 0})
-    transformed.update({k[16]: 1 if row[k[16]] else 0})  # Weekend
+    transformed.append(int(row['Administrative']))
+    transformed.append(float(row['Administrative_Duration']))
+    transformed.append(int(row['Informational']))
+    transformed.append(float(row['Informational_Duration']))
+    transformed.append(int(row['ProductRelated']))
+    transformed.append(float(row['ProductRelated_Duration']))  # productRelated_Duration
+    transformed.append(float(row['BounceRates']))  # bounce rates
+    transformed.append(float(row['ExitRates']))
+    transformed.append(float(row['PageValues']))
+    transformed.append(float(row['SpecialDay']))  # SpecialDay
+    transformed.append(get_month(row['Month']))  # Month
+    transformed.append(int(row['OperatingSystems']))
+    transformed.append(int(row['Browser']))
+    transformed.append(int(row['Region']))
+    transformed.append(int(row['TrafficType']))  # Traffic Type
+    transformed.append(1 if row['VisitorType'] == 'Returning_Visitor' else 0)
+    transformed.append(1 if row['Weekend'] == 'TRUE' else 0)  # Weekend
     return transformed
+
+
+def get_month(name):
+    match name:
+        case 'Jan':
+            return 0
+        case 'Feb':
+            return 1
+        case 'Mar':
+            return 2
+        case 'Apr':
+            return 3
+        case 'May':
+            return 4
+        case 'Jun':
+            return 5
+        case 'Jul':
+            return 6
+        case 'Aug':
+            return 7
+        case 'Sep':
+            return 8
+        case 'Oct':
+            return 9
+        case 'Nov':
+            return 10
+        case 'Dec':
+            return 11
 
 
 if __name__ == "__main__":
