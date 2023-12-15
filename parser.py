@@ -90,15 +90,19 @@ def np_chunk(tree):
     whose label is "NP" that does not itself contain any other
     noun phrases as subtrees.
     """
-    stack = list()
     chunks = list()
     stack = list(tree.subtrees())
     while stack:
         sub = stack.pop(len(stack) - 1)
-        children = sub.subtrees()
+        children = list(sub.subtrees())
         if sub.label() == 'NP':
-            if 'NP' not in children:
+            is_lowest = True
+            for child in children:
+                if child.label() == 'NP' and child != children[0]:
+                    is_lowest = False
+            if is_lowest:
                 chunks.append(sub)
+    chunks.reverse()
     return chunks
 
 if __name__ == "__main__":
